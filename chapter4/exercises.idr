@@ -1,4 +1,6 @@
 -- 4.1.5
+import Data.Vect
+
 data Tree elem = Empty
                | Node (Tree elem) elem (Tree elem)
 
@@ -59,3 +61,48 @@ testPic1 = Combine (Primitive (Triangle 2 3))
 testPic2 : Picture
 testPic2 = Combine (Primitive (Rectangle 1 3))
                    (Primitive (Circle 4))
+
+-- 4.2.4
+data PowerSource = Petrol | Pedal | Electric
+
+data Vehicle : PowerSource -> Type where
+  Bicycle : Vehicle Pedal
+  Unicycle : Vehicle Pedal
+  Car : (fuel : Nat) -> Vehicle Petrol
+  Bus : (fuel : Nat) -> Vehicle Petrol
+  Motorcycle : (fuel : Nat) -> Vehicle Petrol
+  Tram : Vehicle Electric
+  ElectricCar : Vehicle Electric
+
+wheels : Vehicle power -> Nat
+wheels Bicycle = 2
+wheels (Car fuel) = 4
+wheels (Bus fuel) = 4
+wheels Unicycle = 1
+wheels (Motorcycle fuel) = 2
+wheels Tram = 10
+wheels ElectricCar = 4
+
+refuel : Vehicle Petrol -> Vehicle Petrol
+refuel (Car fuel) = Car 100
+refuel (Bus fuel) = Bus 200
+refuel (Motorcycle fuel) = Motorcycle 50
+
+vectTakeReverse : (n : Nat) -> Vect (n + p) a -> Vect p a
+vectTakeReverse Z xs = xs
+vectTakeReverse (S k) (x :: xs) = vectTakeReverse k xs
+
+vectTake : (n : Nat) -> Vect (n + p) a -> Vect p a
+vectTake n xs = reverse $ vectTakeReverse n (reverse xs)
+
+maybeAt : Num a => (pos : Integer) -> Vect n a -> Maybe a
+maybeAt {n} pos xs =
+    case integerToFin pos n of
+         Just pos' => Just $ Vect.index pos' xs
+         _ => Nothing
+
+sumEntries : Num a => (pos : Integer) -> Vect n a -> Vect n a -> Maybe a
+sumEntries pos xs ys =
+    case (maybeAt pos xs, maybeAt pos ys) of
+         (Just a, Just b) => Just (a + b)
+         _ => Nothing
